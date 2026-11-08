@@ -1,0 +1,25 @@
+name: quantum-simulator
+
+services:
+  simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: quantum-computer-simulator:1.0.0
+    container_name: quantum-simulator
+    ports:
+      - "8501:8501"
+    environment:
+      # Никакой телеметрии: приложение полностью локальное.
+      STREAMLIT_BROWSER_GATHER_USAGE_STATS: "false"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request, sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8501/_stcore/health', timeout=4).status == 200 else 1)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 25s
